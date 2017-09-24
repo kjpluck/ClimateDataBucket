@@ -105,3 +105,4 @@ ENV/
 *.txt
 *.dat
 
+Pipfile

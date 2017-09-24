@@ -7,14 +7,19 @@ import hashlib
 import ftplib
 import socket
 
+_refresh_files = True
+
+def set_refresh_files(value):
+    "Stop files from being downloaded"
+    _refresh_files = value
+
 def download_data(url):
     "Downloads file if modified since last download"
 
     modified, error = _modified_since_last_download(url)
 
-    if modified:
-        _download_data_file(url)
-        return
+    if modified and _refresh_files:
+        return _download_data_file(url)
 
     short_url = _shorten_url(url)
 
@@ -23,11 +28,18 @@ def download_data(url):
     else:
         print(short_url + " not modified since last download")
 
+    return _generate_download_path(url)
+
 def _shorten_url(url):
     if len(url) > 70:
         return url[:30] + "..." + url[-30:]
 
     return url
+
+def _generate_download_path(url):
+    calling_module_folder = _get_calling_module_folder()
+    downloaded_filepath = _make_download_path(url, calling_module_folder)
+    return downloaded_filepath
 
 def _download_data_file(url):
     calling_module_folder = _get_calling_module_folder()
@@ -36,13 +48,15 @@ def _download_data_file(url):
     parsed_url = urlparse(url)
     scheme = parsed_url.scheme
 
-    if scheme == "http":
+    if scheme == "http" or scheme == "https":
         last_modified = _retrieve_via_http(url, downloaded_filepath)
 
-    if scheme == "ftp":
+    if scheme == "ftp" or scheme == "sftp":
         last_modified = _retrieve_via_ftp(parsed_url, downloaded_filepath)
 
     _update_previous_last_modified(_get_hash_filepath(url), last_modified)
+
+    return downloaded_filepath
 
 def _retrieve_via_http(url, downloaded_filepath):
     headers = urllib.request.urlretrieve(url, downloaded_filepath)[1]
@@ -98,11 +112,11 @@ def _get_last_modified(url):
     parsed_url = urlparse(url)
     scheme = parsed_url.scheme
 
-    if(scheme == "http"):
+    if scheme == "http" or scheme == "https":
         last_modified = _get_last_modified_via_http(url)
         return last_modified
 
-    if(scheme == "ftp"):
+    if scheme == "ftp" or scheme == "sftp":
         last_modified = _get_last_modified_via_ftp(url)
         return last_modified
 
