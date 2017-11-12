@@ -8,3 +8,6 @@ def download():
 
     shared.download_data("http://sealevel.colorado.edu/files/2016_rel4/sl_global.txt")
     print("global mean sea level finished")
+
+def get_data():
+    'returns sea level data'

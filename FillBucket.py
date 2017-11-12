@@ -45,14 +45,23 @@ def _make_module_name_from_path(a_contribution_to_execute):
 
     return "." + package_name +"."+contribution_name
 
+
+def _download(the_module_name):
+    the_contribution = importlib.import_module(the_module_name, "contributions")
+    the_contribution.download()
+
+def _get_data(the_module_name):
+    the_contribution = importlib.import_module(the_module_name, "contributions")
+    return the_contribution.get_data()
+
+
 if CONTRIBUTIONS_TO_EXECUTE:
 
     _check_all_contributions_listed_exist()
 
     for contribution_to_execute in CONTRIBUTIONS_TO_EXECUTE:
         module_name = _make_module_name_from_path(contribution_to_execute)
-        the_contribution = importlib.import_module(module_name, "contributions")
-        the_contribution.download()
+        _download(module_name)
 else:
 
     for importer, modname, ispkg in pkgutil.walk_packages(PACKAGE.__path__):
@@ -63,9 +72,5 @@ else:
 
         if not ispkg and modname != "shared":
             print(theModule.__doc__)
-
-            func = getattr(theModule, "download")
-
-            print(func.__doc__)
-
-            threading.Thread(target=func).start()
+            _download(modname)
+            print(_get_data(modname))

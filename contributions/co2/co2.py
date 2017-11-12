@@ -8,3 +8,7 @@ def download():
     shared.download_data("http://scrippsco2.ucsd.edu/assets/data/atmospheric/stations/in_situ_co2/weekly/weekly_in_situ_co2_mlo.csv")
 
     print("co2 finished")
+
+def get_data():
+    'Returns co2 data'
+    
