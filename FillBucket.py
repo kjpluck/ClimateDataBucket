@@ -37,17 +37,22 @@ def _check_all_contributions_listed_exist():
             exit()
 
 
+
+def _make_module_name_from_path(a_contribution_to_execute):
+    tail, contribution_name = os.path.split(a_contribution_to_execute)
+    contribution_name, _ = os.path.splitext(contribution_name)
+    _, package_name = os.path.split(tail)
+
+    return "." + package_name +"."+contribution_name
+
 if CONTRIBUTIONS_TO_EXECUTE:
 
     _check_all_contributions_listed_exist()
-    
+
     for contribution_to_execute in CONTRIBUTIONS_TO_EXECUTE:
-        tail, contribution_name = os.path.split(contribution_to_execute)
-        contribution_name, _ = os.path.splitext(contribution_name)
-        _, package_name = os.path.split(tail)
-        module_name = "." + package_name +"."+contribution_name
+        module_name = _make_module_name_from_path(contribution_to_execute)
         the_contribution = importlib.import_module(module_name, "contributions")
-        the_contribution.get()
+        the_contribution.download()
 else:
 
     for importer, modname, ispkg in pkgutil.walk_packages(PACKAGE.__path__):
@@ -59,7 +64,7 @@ else:
         if not ispkg and modname != "shared":
             print(theModule.__doc__)
 
-            func = getattr(theModule, "get")
+            func = getattr(theModule, "download")
 
             print(func.__doc__)
 

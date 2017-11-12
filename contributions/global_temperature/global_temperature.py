@@ -1,7 +1,7 @@
 'The global temperature contribution'
 from contributions import shared
 
-def get():
+def download():
     'this is the doc string'
     print("this is get() in global temperature")
 
